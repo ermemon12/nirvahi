@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Nirvahi",
+  "description": "A secure and community-focused ride-sharing platform designed for safety, sustainability, and empowerment.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
