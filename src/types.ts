@@ -27,3 +27,13 @@ export interface ImpactStats {
   moneySaved: number;
   carsReduced: number;
 }
+
+export interface Ride {
+  _id: string;
+  from: string;
+  to: string;
+  date: string;
+  seats: number;
+  price: number;
+}
+

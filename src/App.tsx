@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AppState } from './types';
 import { LoginScreen, VerifyIdScreen, VerifyingProcessScreen } from './components/Onboarding';
 import { Dashboard } from './components/Dashboard';
+// import Dashboard from "./components/Dashboard";
 import { CreateRide } from './components/CreateRide';
 import { FindRide } from './components/FindRide';
 import { RideDetails } from './components/RideDetails';
