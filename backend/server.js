@@ -1,29 +1,3 @@
-// const express = require("express");
-// const mongoose = require("mongoose");
-// const cors = require("cors");
-// require("dotenv").config();
-
-// const rideRoutes = require("./routes/rideRoutes");
-
-// const app = express();
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-
-// // Routes
-// app.use("/api/rides", rideRoutes);
-
-// // DB connection
-// mongoose
-//   .connect(process.env.MONGO_URI)
-//   .then(() => {
-//     console.log("MongoDB connected");
-//     app.listen(5000, () => console.log("Server running on port 5000"));
-//   })
-//   .catch((err) => console.error(err));
-
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -50,3 +24,22 @@ mongoose
     app.listen(5000, () => console.log("Server running on port 5000"));
   })
   .catch((err) => console.error(err));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
