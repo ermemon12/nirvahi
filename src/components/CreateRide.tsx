@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactMapGL, { Marker, Source, Layer } from "react-map-gl";
 import axios from "axios";
-import { ArrowLeft, MapPin, Calendar, Clock, Users, IndianRupee, Shield, CheckCircle2, ChevronDown } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, Users, IndianRupee, Shield, ChevronDown } from "lucide-react";
 
 interface CreateRideProps { onBack: () => void; }
 type Step = "details" | "safety" | "preview";
 
 // Mapbox Token
-const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJhbWsxMiIsImEiOiJjbWs0YjRvZjUwNHJjM2Rxc2diOWhiMTR0In0.A81lPbvYFQ12-pwZbW8_Pg"; // <-- replace with your Mapbox token
+const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJhbWsxMiIsImEiOiJjbWs0YjRvZjUwNHJjM2Rxc2diOWhiMTR0In0.A81lPbvYFQ12-pwZbW8_Pg";
 
 export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
   const [step, setStep] = useState<Step>("details");
@@ -26,6 +26,10 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
   const [time, setTime] = useState("");
   const [seats, setSeats] = useState(2);
   const [cost, setCost] = useState(12);
+
+  // ETA & speed
+  const [etaMinutes, setEtaMinutes] = useState<number | null>(null);
+  const [avgSpeed, setAvgSpeed] = useState<number | null>(null);
 
   // --------------------------
   // Mapbox Autocomplete
@@ -62,7 +66,7 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
   };
 
   // --------------------------
-  // Fetch Route
+  // Fetch Route + ETA + Speed
   // --------------------------
   useEffect(() => {
     const fetchRoute = async () => {
@@ -70,9 +74,29 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
       try {
         const res = await axios.get(
           `https://api.mapbox.com/directions/v5/mapbox/driving/${fromCoords[1]},${fromCoords[0]};${toCoords[1]},${toCoords[0]}`,
-          { params: { geometries: "geojson", access_token: MAPBOX_TOKEN } }
+          {
+            params: {
+              geometries: "geojson",
+              steps: true,
+              overview: "full",
+              annotations: "duration,speed",
+              access_token: MAPBOX_TOKEN
+            }
+          }
         );
-        setRouteGeoJSON(res.data.routes[0].geometry);
+        const route = res.data.routes[0];
+        setRouteGeoJSON(route.geometry);
+
+        // ETA in minutes
+        const eta = Math.round(route.duration / 60);
+        setEtaMinutes(eta);
+
+        // Average speed in m/s
+        const speeds = route.legs.flatMap((leg:any) =>
+          leg.annotation?.speed?.filter((s:number) => s != null)
+        );
+        const avg = speeds.length > 0 ? Math.round(speeds.reduce((a:number,b:number)=>a+b,0)/speeds.length) : 0;
+        setAvgSpeed(avg);
       } catch (err) { console.error(err); }
     };
     fetchRoute();
@@ -107,14 +131,13 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
   );
 
   // --------------------------
-  // Step 1: Details
+  // StepDetails (unchanged)
   // --------------------------
   const StepDetails = () => (
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 space-y-6">
         <h3 className="text-lg font-bold text-slate-800">Route Details</h3>
         <div className="space-y-4">
-
           {/* From */}
           <div className="space-y-2 relative">
             <label className="text-sm font-semibold text-slate-500">From</label>
@@ -210,9 +233,7 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
     </div>
   );
 
-  // --------------------------
-  // StepSafety
-  // --------------------------
+  // StepSafety unchanged
   const StepSafety = () => (
     <div className="space-y-6 animate-fadeIn">
       <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 space-y-6">
@@ -239,7 +260,7 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
   );
 
   // --------------------------
-  // StepPreview
+  // StepPreview with Traffic + ETA + Avg Speed
   // --------------------------
   const StepPreview = () => (
     <div className="space-y-6 animate-fadeIn pb-10">
@@ -251,13 +272,9 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
               initialViewState={{ latitude: fromCoords[0], longitude: fromCoords[1], zoom: 12 }}
               mapboxAccessToken={MAPBOX_TOKEN}
               style={{ width: "100%", height: "100%" }}
+              mapStyle="mapbox://styles/mapbox/streets-v12"
             >
-              <Marker longitude={fromCoords[1]} latitude={fromCoords[0]} anchor="bottom">
-                <MapPin className="w-6 h-6 text-purple-600"/>
-              </Marker>
-              <Marker longitude={toCoords[1]} latitude={toCoords[0]} anchor="bottom">
-                <MapPin className="w-6 h-6 text-teal-600"/>
-              </Marker>
+              {/* Route */}
               <Source id="route" type="geojson" data={routeGeoJSON}>
                 <Layer
                   id="routeLine"
@@ -265,6 +282,24 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
                   paint={{ "line-color": "#7c3aed", "line-width": 4 }}
                 />
               </Source>
+
+              {/* Traffic Layer */}
+              <Source id="traffic" type="vector" url="mapbox://mapbox.mapbox-traffic-v1">
+                <Layer
+                  id="traffic-layer"
+                  type="line"
+                  source-layer="traffic"
+                  paint={{ "line-color": "#ff0000", "line-width": 3 }}
+                />
+              </Source>
+
+              {/* Markers */}
+              <Marker longitude={fromCoords[1]} latitude={fromCoords[0]} anchor="bottom">
+                <MapPin className="w-6 h-6 text-purple-600"/>
+              </Marker>
+              <Marker longitude={toCoords[1]} latitude={toCoords[0]} anchor="bottom">
+                <MapPin className="w-6 h-6 text-teal-600"/>
+              </Marker>
             </ReactMapGL>
           ) : <div className="w-full h-full flex items-center justify-center text-slate-400">Enter addresses to see route</div>}
         </div>
@@ -279,6 +314,18 @@ export const CreateRide: React.FC<CreateRideProps> = ({ onBack }) => {
             <span className="text-sm font-semibold text-slate-400">Date & Time</span>
             <span className="text-sm font-bold text-slate-700">{date} {time}</span>
           </div>
+          {etaMinutes && (
+            <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl">
+              <span className="text-sm font-semibold text-slate-400">Estimated Time</span>
+              <span className="text-sm font-bold text-slate-700">{etaMinutes} mins</span>
+            </div>
+          )}
+          {avgSpeed && (
+            <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl">
+              <span className="text-sm font-semibold text-slate-400">Avg Speed</span>
+              <span className="text-sm font-bold text-slate-700">{avgSpeed} m/s</span>
+            </div>
+          )}
           <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl">
             <span className="text-sm font-semibold text-slate-400">Available Seats</span>
             <span className="text-sm font-bold text-slate-700">{seats} seat{seats>1?'s':''}</span>
