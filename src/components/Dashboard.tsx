@@ -1,363 +1,222 @@
+import React, { useEffect, useState } from 'react';
+import { Bell, Plus, Search, Leaf, DollarSign, Car, MapPin, Clock, Users, LayoutDashboard, Calendar, Users2, User, Shield } from 'lucide-react';
+import { Ride, ImpactStats } from '../types';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { 
-  Bell, Plus, Search, Leaf, Car, MapPin, 
-  Clock, Users, Shield, ArrowRight, Star,
-  CheckCircle2, Navigation, TrendingUp, Zap
-} from 'lucide-react';
-import { Ride } from '../types';
+const IMPACT: ImpactStats = {
+  co2Saved: 12.5,
+  moneySaved: 48,
+  carsReduced: 8
+};
 
 interface DashboardProps {
   onCreateRide: () => void;
   onFindRide: () => void;
-  onRideSelect: (ride: Ride) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ onCreateRide, onFindRide, onRideSelect }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ onCreateRide, onFindRide }) => {
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
 
+  // Fetch rides from backend and map fields to UI
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const fetchRides = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/rides'); // your backend URL
+        const data = await res.json();
 
-  const fetchRides = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('http://localhost:5000/api/rides');
-      if (!res.ok) throw new Error('API down');
-      const data = await res.json();
-      const formattedRides = data.map((ride: any) => ({
-        id: ride._id,
-        from: ride.from,
-        to: ride.to,
-        time: `${ride.date} • ${ride.time}`,
-        passengers: ride.availableSeats,
-        status: ride.status === 'ACTIVE' ? 'Confirmed' : 'Pending',
-        avatars: Array(Math.min(ride.availableSeats, 4)).fill(0).map((_, i) => `https://picsum.photos/seed/user-${i}/40/40`),
-        womenOnly: ride.womenOnly,
-        price: ride.price || Math.floor(Math.random() * 200) + 50,
-        driver: {
-          name: ride.driverName || 'Verified Member',
-          rating: 4.2 + Math.random() * 0.8,
-          avatar: `https://picsum.photos/seed/${ride._id}/100/100`,
-          phone: ride.phone || (Math.random() * 1000000000000).toFixed(0).slice(-10)
-        }
-      }));
-      setRides(formattedRides);
-    } catch (error) {
-      setRides([
-        {
-          id: '1',
-          from: 'Bandra West, Mumbai',
-          to: 'Powai, Mumbai Suburban',
-          time: '12:03',
-          passengers: 2,
-          status: 'Confirmed',
-          avatars: ['https://picsum.photos/seed/1/40/40', 'https://picsum.photos/seed/2/40/40'],
-          womenOnly: true,
-          price: 249,
-          driver: { name: 'Anjali Gupta', rating: 4.9, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150', phone: '9820012345' }
-        },
-        {
-          id: '2',
-          from: 'Andheri East',
-          to: 'BKC, Mumbai',
-          time: '09:30',
-          passengers: 3,
-          status: 'Confirmed',
-          avatars: ['https://picsum.photos/seed/3/40/40'],
-          womenOnly: true,
-          price: 180,
-          driver: { name: 'Priya Verma', rating: 4.7, avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150', phone: '9930054321' }
-        },
-        {
-          id: '3',
-          from: 'Goregaon East',
-          to: 'Byculla, South Mumbai',
-          time: '11:00',
-          passengers: 2,
-          status: 'Confirmed',
-          avatars: ['https://picsum.photos/seed/4/40/40', 'https://picsum.photos/seed/5/40/40'],
-          womenOnly: false,
-          price: 155,
-          driver: { name: 'Rahul Khanna', rating: 4.5, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150', phone: '9819987654' }
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const formattedRides = data.map((ride: any) => ({
+          id: ride._id,
+          from: ride.from,
+          to: ride.to,
+          time: `${ride.date} • ${ride.time}`,
+          passengers: ride.availableSeats,
+          status: ride.status === 'ACTIVE' ? 'Confirmed' : 'Pending',
+          avatars: Array(ride.availableSeats).fill('https://picsum.photos/seed/user/40/40'),
+          womenOnly: ride.womenOnly, // added
+        }));
 
-  useEffect(() => {
+        setRides(formattedRides);
+      } catch (error) {
+        console.error('Failed to fetch rides', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchRides();
-  }, [fetchRides]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#FDFCFE] relative pb-32 overflow-x-hidden selection:bg-purple-200">
-      {/* --- ADVANCED ANIMATED BACKGROUND --- */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* Animated City Line at the bottom */}
-        <div className="absolute bottom-0 left-0 w-[400%] h-64 bg-[url('https://www.svgrepo.com/show/404494/city.svg')] bg-repeat-x opacity-[0.04] animate-city-scroll"></div>
-        
-        {/* Floating Clouds/Blobs for depth */}
-        <div className="absolute top-[15%] left-[-5%] w-32 h-32 opacity-10 blur-xl bg-purple-200 rounded-full animate-float"></div>
-        <div className="absolute top-[40%] right-[-10%] w-64 h-64 opacity-10 blur-3xl bg-indigo-100 rounded-full animate-float animation-delay-2000"></div>
-
-        {/* Moving Car silhouette */}
-        <div className="absolute bottom-24 left-[-100px] animate-car-drive">
-          <Car className="text-purple-200/20 w-12 h-12" />
-        </div>
-      </div>
-
-      {/* --- PREMIUM NAVBAR --- */}
-      <nav className={`fixed top-0 inset-x-0 z-[60] transition-all duration-500 ${
-        scrolled ? 'bg-white/80 backdrop-blur-xl border-b border-purple-100 py-3 shadow-md' : 'bg-transparent py-6'
-      }`}>
-        <div className="max-w-xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200 group-hover:rotate-6 transition-all">
-              <Car className="text-white w-6 h-6" />
+    <div className="min-h-screen bg-slate-50">
+      {/* Top Navbar */}
+      <nav className="sticky top-0 z-50 bg-white border-b border-slate-100 px-6 py-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                <Car className="text-white w-5 h-5" />
+              </div>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-teal-600">NIRVAHI</span>
             </div>
-            <span className="text-xl font-black tracking-tighter text-slate-900">NIRVAHI</span>
+            
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#" className="text-sm font-semibold text-purple-600 flex items-center gap-1.5"><LayoutDashboard className="w-4 h-4" /> Dashboard</a>
+              <a href="#" className="text-sm font-semibold text-slate-500 hover:text-purple-600 transition-colors flex items-center gap-1.5"><Calendar className="w-4 h-4" /> My Rides</a>
+              <a href="#" className="text-sm font-semibold text-slate-500 hover:text-purple-600 transition-colors flex items-center gap-1.5"><Users2 className="w-4 h-4" /> Groups</a>
+            </div>
           </div>
+
           <div className="flex items-center gap-4">
-            <div className="relative p-2 text-slate-400 hover:text-purple-600 transition-colors bg-white rounded-xl shadow-sm border border-slate-100 cursor-pointer">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-pink-500 rounded-full border border-white"></span>
+            <button onClick={onCreateRide} className="hidden sm:flex bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-purple-100 hover:bg-purple-700 transition-all active:scale-95">
+              <Plus className="w-4 h-4 mr-1.5" /> Create Ride
+            </button>
+            <div className="relative p-2 text-slate-400 hover:text-purple-600 transition-colors cursor-pointer">
+              <Bell className="w-6 h-6" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </div>
-            <img src="https://picsum.photos/seed/priya/100/100" className="w-10 h-10 rounded-2xl border-2 border-white shadow-lg ring-4 ring-purple-50" alt="Profile" />
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-100">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs text-slate-400 font-medium">Welcome,</p>
+                <p className="text-sm font-bold text-slate-800">Priya Sharma</p>
+              </div>
+              <img src="https://picsum.photos/seed/priya/100/100" alt="Profile" className="w-10 h-10 rounded-xl border-2 border-white shadow-sm object-cover" />
+            </div>
           </div>
         </div>
       </nav>
 
-      <main className="relative z-10 max-w-xl mx-auto px-6 pt-24 space-y-12">
-        {/* --- DYNAMIC HERO SECTION --- */}
-        <header className="space-y-8 py-4">
-          <div className="space-y-4 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white shadow-sm border border-purple-100 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 animate-in fade-in slide-in-from-top-2">
-              <Navigation size={12} fill="currentColor" className="animate-pulse" /> Live Community
+      <main className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Map / Search card */}
+            <div className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-100 relative group min-h-[400px]">
+              <div className="absolute inset-0 bg-slate-200">
+                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200" alt="Map View" className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000" />
+              </div>
+              <div className="absolute top-6 left-6 right-6 flex justify-between items-start pointer-events-none">
+                <div className="bg-white/95 backdrop-blur shadow-xl rounded-2xl p-4 w-72 pointer-events-auto border border-slate-100">
+                  <h4 className="text-sm font-bold text-slate-800 mb-3">Find your next ride</h4>
+                  <div className="space-y-2">
+                    <div className="relative" onClick={onFindRide}>
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input type="text" placeholder="Where to?" className="w-full bg-slate-50 text-xs py-2.5 pl-9 pr-3 rounded-lg border border-slate-100 cursor-pointer" readOnly />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute bottom-6 left-6 right-6 flex gap-4">
+                <button onClick={onFindRide} className="flex-1 bg-white hover:bg-slate-50 text-slate-800 rounded-2xl py-4 px-6 flex items-center justify-center gap-2 font-bold shadow-xl transition-all active:scale-95">
+                  <Search className="w-5 h-5 text-teal-600" /> Explore Nearby
+                </button>
+                <button onClick={onCreateRide} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl py-4 px-6 flex items-center justify-center gap-2 font-bold shadow-xl shadow-purple-900/20 transition-all active:scale-95">
+                  <Plus className="w-5 h-5" /> New Ride
+                </button>
+              </div>
             </div>
-            <h1 className="text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
-              Welcome back,<br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">Priya Sharma</span>
-            </h1>
-            <p className="text-slate-500 font-medium text-sm max-w-[80%] mx-auto">
-              Your commute choices saved <span className="text-emerald-600 font-black">12.5kg CO₂</span> this week! 🌿
-            </p>
-          </div>
 
-          {/* --- CLEANER ACTION CARDS --- */}
-          <div className="grid grid-cols-2 gap-4">
-            <button 
-              onClick={onFindRide}
-              className="group relative bg-white p-7 rounded-[2.5rem] flex flex-col items-center gap-4 shadow-xl shadow-slate-200/40 border border-slate-100 transition-all hover:border-purple-600 hover:shadow-2xl hover:-translate-y-1 active:scale-[0.97]"
-            >
-              <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:bg-purple-50 group-hover:text-purple-600 transition-all shadow-inner">
-                <Search size={28} />
+            {/* Sustainability impact */}
+            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-[32px] p-8 text-white shadow-xl shadow-purple-200">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="space-y-2 text-center md:text-left">
+                  <h4 className="text-xl font-bold">Your Sustainability Impact</h4>
+                  <p className="text-purple-100 text-sm">You've saved more than 80% of users this month!</p>
+                </div>
+                <div className="grid grid-cols-3 gap-8 flex-1 w-full max-w-xl">
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center mb-3"><Leaf className="w-6 h-6 text-emerald-300" /></div>
+                    <span className="text-lg font-bold">{IMPACT.co2Saved}kg</span>
+                    <span className="text-xs text-purple-200">CO₂ Saved</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center mb-3"><DollarSign className="w-6 h-6 text-amber-300" /></div>
+                    <span className="text-lg font-bold">₹{IMPACT.moneySaved}</span>
+                    <span className="text-xs text-purple-200">Earned</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center mb-3"><Car className="w-6 h-6 text-blue-300" /></div>
+                    <span className="text-lg font-bold">{IMPACT.carsReduced}</span>
+                    <span className="text-xs text-purple-200">Cars Saved</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="font-black text-slate-900 tracking-tight text-lg">Find Ride</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Explore Routes</p>
-              </div>
-            </button>
-
-            <button 
-              onClick={onCreateRide}
-              className="group relative bg-gradient-to-br from-purple-600 to-indigo-700 p-7 rounded-[2.5rem] flex flex-col items-center gap-4 shadow-2xl shadow-purple-200/60 border border-purple-500 transition-all hover:shadow-purple-300 hover:-translate-y-1 active:scale-[0.97]"
-            >
-              <div className="w-14 h-14 bg-white/10 backdrop-blur rounded-2xl flex items-center justify-center text-white transition-all shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)]">
-                <Plus size={28} />
-              </div>
-              <div className="text-center">
-                <p className="font-black text-white tracking-tight text-lg">Post Trip</p>
-                <p className="text-[10px] font-bold text-purple-100 uppercase tracking-widest mt-0.5">Earn & Share</p>
-              </div>
-            </button>
-          </div>
-        </header>
-
-        {/* --- STATS SECTION --- */}
-        <section className="grid grid-cols-3 gap-3">
-          <StatBox icon={<Leaf className="text-emerald-500" />} val="12.5" unit="kg" label="CO₂" />
-          <StatBox icon={<TrendingUp className="text-purple-500" />} val="249" unit="₹" label="Saved" />
-          <StatBox icon={<Zap className="text-blue-500" />} val="48" unit="" label="Points" />
-        </section>
-
-        {/* --- RIDES LIST --- */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between px-2">
-            <div>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Top Commutes</h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Available Nearby</p>
             </div>
-            <button onClick={onFindRide} className="text-purple-600 font-black text-[10px] uppercase tracking-widest hover:underline px-4 py-2 bg-purple-50 rounded-full transition-colors">See All</button>
           </div>
 
-          <div className="space-y-8">
+          {/* Recent Rides */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <h4 className="text-lg font-bold text-slate-800">Recent Rides</h4>
+              <button onClick={onFindRide} className="text-sm font-bold text-purple-600 hover:underline">View All</button>
+            </div>
+
             {loading ? (
-              [1, 2].map(i => <div key={i} className="h-48 bg-white rounded-[3rem] animate-pulse"></div>)
+              <div>Loading rides...</div>
             ) : (
-              rides.map(ride => (
-                <RideCard key={ride.id} ride={ride} onClick={() => onRideSelect(ride)} />
-              ))
+              <div className="space-y-4">
+                {rides.map(ride => (
+                  <div key={ride.id} onClick={onFindRide} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 hover:border-purple-200 transition-all group cursor-pointer hover:shadow-md">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <MapPin className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-800">{ride.from} to {ride.to}</p>
+                          <div className="flex items-center gap-4 mt-1">
+                            <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium"><Clock className="w-3.5 h-3.5" /> {ride.time}</span>
+                            <span className="flex items-center gap-1.5 text-xs text-slate-400 font-medium"><Users className="w-3.5 h-3.5" /> {ride.passengers} pax</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                      <div className="flex items-center gap-3">
+                        <div className="flex -space-x-2">
+                          {ride.avatars.map((url, i) => (
+                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-slate-100 shadow-sm">
+                              <img src={url} alt="User" className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                        <span className="text-xs text-slate-500 font-semibold">Join them</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {ride.womenOnly && (
+                          <span className="bg-purple-50 text-purple-600 text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 border border-purple-100">
+                            <Shield className="w-3 h-3" /> Women-Priority
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider ${ride.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {ride.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button onClick={onCreateRide} className="w-full py-4 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold hover:border-purple-300 hover:text-purple-500 transition-all flex items-center justify-center gap-2">
+                  <Plus className="w-5 h-5" /> Post New Request
+                </button>
+              </div>
             )}
-            
-            {/* Empty Space Filler / Add New */}
-            <div 
-              onClick={onCreateRide}
-              className="relative overflow-hidden group bg-white/40 border-4 border-dashed border-purple-100 rounded-[3rem] p-16 flex flex-col items-center gap-4 hover:bg-white hover:border-purple-300 transition-all cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-[url('https://www.svgrepo.com/show/404494/city.svg')] opacity-[0.01] grayscale scale-125 group-hover:scale-150 transition-all duration-[20s] linear"></div>
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-purple-200 group-hover:bg-purple-600 group-hover:text-white shadow-xl transition-all group-hover:scale-110">
-                <Plus size={32} />
-              </div>
-              <div className="text-center relative z-10">
-                <p className="font-black text-lg text-slate-800">Can't find a ride?</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Start your journey here</p>
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
       </main>
 
-      <style>{`
-        @keyframes city-scroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @keyframes car-drive {
-          0% { transform: translateX(-100px); }
-          100% { transform: translateX(calc(100vw + 100px)); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-city-scroll { animation: city-scroll 120s linear infinite; }
-        .animate-car-drive { animation: car-drive 15s ease-in-out infinite; }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-      `}</style>
+      {/* Mobile bottom nav */}
+      <div className="md:hidden fixed bottom-6 inset-x-6 z-50">
+        <div className="bg-slate-900/95 backdrop-blur-md rounded-2xl px-8 py-4 flex justify-between items-center shadow-2xl shadow-slate-900/40">
+          <MapPin onClick={onFindRide} className="w-6 h-6 text-purple-400" />
+          <Calendar className="w-6 h-6 text-slate-400" />
+          <div onClick={onCreateRide} className="bg-purple-600 p-3 rounded-xl -mt-10 border-4 border-slate-50 shadow-lg cursor-pointer active:scale-95 transition-transform">
+            <Plus className="w-6 h-6 text-white" />
+          </div>
+          <Users2 className="w-6 h-6 text-slate-400" />
+          <User className="w-6 h-6 text-slate-400" />
+        </div>
+      </div>
     </div>
   );
 };
-
-const StatBox: React.FC<{ icon: React.ReactNode; val: string; unit: string; label: string }> = ({ icon, val, unit, label }) => (
-  <div className="bg-white p-5 rounded-[2.5rem] border border-slate-50 shadow-lg shadow-slate-100/50 flex flex-col items-center gap-1.5 text-center group transition-all hover:-translate-y-1 hover:shadow-xl">
-    <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-purple-50 group-hover:scale-110 transition-all">
-      {icon}
-    </div>
-    <p className="text-xl font-black text-slate-900 leading-none">{val}<span className="text-[10px] ml-0.5 text-slate-400">{unit}</span></p>
-    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">{label}</p>
-  </div>
-);
-
-const RideCard: React.FC<{ ride: Ride; onClick: () => void }> = ({ ride, onClick }) => (
-  <div 
-    onClick={onClick}
-    className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-purple-100/30 border border-purple-50/50 flex flex-col gap-8 hover:shadow-purple-200 transition-all duration-500 cursor-pointer active:scale-[0.98] group relative overflow-hidden"
-  >
-    {/* Visual Accent */}
-    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50/50 rounded-bl-[80px] -z-0 group-hover:scale-110 transition-transform duration-700">
-      <img src="https://www.svgrepo.com/show/368298/city-1.svg" className="absolute -top-4 -right-4 w-24 h-24 opacity-10 rotate-12" />
-    </div>
-
-    <div className="space-y-6 relative z-10">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-4 items-center">
-          <div className="relative">
-             <img src={ride.driver?.avatar} className="w-16 h-16 rounded-[1.75rem] object-cover border-2 border-white shadow-xl ring-4 ring-purple-50" alt="Avatar" />
-             <div className="absolute -bottom-1 -right-1 bg-white px-2 py-0.5 rounded-lg shadow-md border border-purple-50 flex items-center gap-1 text-[11px] font-black text-amber-500">
-               <Star size={11} fill="currentColor" /> {ride.driver?.rating?.toFixed(1)}
-             </div>
-          </div>
-          <div>
-             <h3 className="text-lg font-black text-slate-900 leading-none group-hover:text-purple-600 transition-colors tracking-tight">{ride.driver?.name}</h3>
-             <div className="flex items-center gap-1.5 mt-2">
-               <CheckCircle2 size={12} className="text-emerald-500" />
-               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Verified Pro</span>
-             </div>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-           <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3.5 py-1.5 rounded-full border border-emerald-100 tracking-widest">
-             {ride.status.toUpperCase()}
-           </span>
-           {ride.womenOnly && (
-             <div className="bg-pink-50 text-pink-600 text-[9px] font-black px-2.5 py-1.5 rounded-full border border-pink-100 flex items-center gap-1.5 shadow-sm">
-               <Shield size={10} strokeWidth={3} /> WOMEN
-             </div>
-           )}
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {/* Route Visualizer */}
-        <div className="relative flex gap-5">
-           <div className="flex flex-col items-center pt-2">
-              <div className="w-4 h-4 rounded-full border-[3px] border-purple-600 bg-white shadow-sm"></div>
-              <div className="w-[2px] h-10 border-l-2 border-dashed border-purple-100 my-1"></div>
-              <div className="w-4 h-4 rounded-full bg-teal-500 shadow-sm"></div>
-           </div>
-           <div className="flex-1 space-y-9 pt-1">
-              <div className="space-y-0.5">
-                <p className="text-[15px] font-bold text-slate-800 truncate">{ride.from}</p>
-                <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Pickup</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[15px] font-bold text-slate-800 truncate">{ride.to}</p>
-                <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Drop-off</p>
-              </div>
-           </div>
-        </div>
-
-        {/* Info Pill */}
-        <div className="bg-slate-50/50 p-5 rounded-[2.5rem] flex items-center justify-between border border-white shadow-inner group-hover:bg-purple-50 transition-colors">
-          <div className="flex items-center gap-2.5 text-[11px] font-black text-slate-500 tracking-widest uppercase">
-            <Clock size={16} className="text-purple-600" /> {ride.time}
-          </div>
-          <div className="h-4 w-px bg-slate-200"></div>
-          <div className="flex items-center gap-2.5 text-[11px] font-black text-slate-500 tracking-widest uppercase">
-            <Users size={16} className="text-purple-600" /> {ride.passengers} Seats
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Footer Multi-Joiner Icons + Price */}
-    <div className="flex items-end justify-between pt-6 border-t border-purple-50 mt-auto relative z-10">
-      <div className="space-y-4">
-         <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] ml-1">Current Joiners</p>
-         <div className="flex -space-x-3.5">
-            {ride.avatars.map((url, i) => (
-              <img key={i} src={url} className="w-11 h-11 rounded-full border-4 border-white shadow-lg ring-1 ring-slate-100 hover:translate-y-[-4px] transition-transform" alt="Joiner" />
-            ))}
-            <div className="w-11 h-11 rounded-full border-4 border-white bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-[10px] text-white font-black shadow-lg">
-              +{Math.floor(Math.random() * 5) + 3}
-            </div>
-         </div>
-      </div>
-      <div className="text-right">
-         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">Contribution</p>
-         <div className="flex items-center gap-0.5 justify-end">
-           <span className="text-2xl font-black text-purple-600 mb-1 leading-none">₹</span>
-           <span className="text-5xl font-black text-purple-600 tracking-tighter leading-none">{ride.price}</span>
-         </div>
-      </div>
-    </div>
-  </div>
-);
-
-const IndianRupee: React.FC<{ size?: number; className?: string }> = ({ size = 24, className }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M6 3h12" />
-    <path d="M6 8h12" />
-    <path d="m6 13 8.5 8" />
-    <path d="M6 13h3" />
-    <path d="M9 13c6.667 0 6.667-10 0-10" />
-  </svg>
-);

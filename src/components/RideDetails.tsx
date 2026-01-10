@@ -1,185 +1,193 @@
 
 import React from 'react';
-import { ArrowLeft, Phone, MessageSquare, Shield, CheckCircle2, Clock, MapPin, Sparkles, ChevronDown, Leaf, Star, Users, ArrowRight } from 'lucide-react';
-import { Ride } from '../types';
+// Added missing Star and Users imports from lucide-react
+import { ArrowLeft, Phone, MessageSquare, Shield, CheckCircle2, Clock, MapPin, Sparkles, ChevronDown, IndianRupee, Leaf, Star, Users } from 'lucide-react';
 
 interface RideDetailsProps {
-  ride: Ride;
   onBack: () => void;
   onRequestJoin: () => void;
 }
 
-export const RideDetails: React.FC<RideDetailsProps> = ({ ride, onBack, onRequestJoin }) => {
+export const RideDetails: React.FC<RideDetailsProps> = ({ onBack, onRequestJoin }) => {
   return (
-    <div className="max-w-xl mx-auto min-h-screen bg-[#FDFCFE] pb-40 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md px-6 py-6 flex items-center gap-4 sticky top-0 z-30 border-b border-purple-100 shadow-sm">
-        <button 
-          onClick={onBack} 
-          className="p-3 hover:bg-purple-50 rounded-2xl transition-all active:scale-90 bg-white shadow-sm border border-slate-100"
-        >
-          <ArrowLeft className="w-5 h-5 text-purple-600" />
-        </button>
+    <div className="max-w-xl mx-auto min-h-screen bg-slate-50 pb-24 animate-fadeIn">
+      <div className="bg-white px-6 py-6 flex items-center gap-4 sticky top-0 z-30 border-b border-slate-100">
+        <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full"><ArrowLeft className="w-5 h-5 text-slate-600" /></button>
         <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">Review Trip</h2>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Commute ID: #{ride.id.slice(-6).toUpperCase()}</p>
+          <h2 className="text-xl font-bold text-slate-800">Ride Details</h2>
+          <p className="text-sm text-slate-400 font-medium">Review before booking</p>
         </div>
       </div>
 
-      <div className="px-6 py-8 space-y-8">
-        {/* Driver Profile Section */}
-        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-purple-100/30 border border-purple-50 space-y-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50/50 rounded-bl-[80px] -z-0 opacity-40"></div>
-          <div className="flex justify-between items-start relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="relative">
-                <img 
-                  src={ride.driver?.avatar || "https://picsum.photos/seed/user/120/120"} 
-                  className="w-24 h-24 rounded-[2.5rem] object-cover ring-8 ring-purple-50 shadow-2xl" 
-                />
-                <div className="absolute -bottom-2 -right-2 bg-white px-3 py-1.5 rounded-xl shadow-xl border border-purple-50 flex items-center gap-1.5">
-                   <Star size={14} className="text-amber-500" fill="currentColor" />
-                   <span className="text-sm font-black text-slate-800">{ride.driver?.rating?.toFixed(1)}</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-slate-900 leading-tight tracking-tight">{ride.driver?.name}</h3>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-100 tracking-widest uppercase">Verified Captain</span>
-                </div>
-                <p className="text-sm font-black text-purple-600 mt-3 font-mono tracking-tighter opacity-80">{ride.driver?.phone}</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4 relative z-10">
-            <button className="flex-1 bg-purple-50 text-purple-600 py-4 rounded-3xl flex items-center justify-center gap-2 font-black text-sm hover:bg-purple-100 transition-all active:scale-95 shadow-sm">
-              <Phone className="w-4 h-4" /> Call Captain
-            </button>
-            <button className="flex-1 bg-indigo-50 text-indigo-600 py-4 rounded-3xl flex items-center justify-center gap-2 font-black text-sm hover:bg-indigo-100 transition-all active:scale-95 shadow-sm">
-              <MessageSquare className="w-4 h-4" /> Live Chat
-            </button>
-          </div>
-          <div className="grid grid-cols-3 gap-3 relative z-10">
-            <VerifyBadge icon={<CheckCircle2 size={20} className="text-emerald-500" />} label="Identity" />
-            <VerifyBadge icon={<CheckCircle2 size={20} className="text-blue-500" />} label="KYC Info" />
-            <VerifyBadge icon={<Shield size={20} className="text-purple-500" />} label="Premium" />
-          </div>
-        </div>
-
-        {/* AI Match Analysis */}
-        <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-[3rem] p-8 text-white shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[100px]"></div>
-          <div className="relative z-10 space-y-6">
+      <div className="px-6 py-6 space-y-6">
+        {/* Driver Profile */}
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 space-y-6">
+          <div className="flex justify-between items-start">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
-                <Sparkles className="w-7 h-7 text-purple-300 animate-pulse" />
+              <img src="https://picsum.photos/seed/esha/120/120" className="w-16 h-16 rounded-3xl object-cover" />
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Esha Tiwari</h3>
+                <p className="text-xs text-slate-400 font-medium">127 rides completed</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+               <span className="flex items-center gap-1 text-amber-500 font-black text-sm">★ 4.9</span>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button className="flex-1 bg-purple-50 text-purple-600 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm hover:bg-purple-100 transition-all"><Phone className="w-4 h-4" /> Call</button>
+            <button className="flex-1 bg-teal-50 text-teal-600 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm hover:bg-teal-100 transition-all"><MessageSquare className="w-4 h-4" /> Message</button>
+          </div>
+          <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="bg-green-50/50 p-3 rounded-2xl text-center border border-green-100">
+              <CheckCircle2 className="w-5 h-5 text-green-500 mx-auto mb-1" />
+              <p className="text-[10px] font-bold text-green-700">ID Verified</p>
+            </div>
+            <div className="bg-blue-50/50 p-3 rounded-2xl text-center border border-blue-100">
+              <CheckCircle2 className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+              <p className="text-[10px] font-bold text-blue-700">Phone Verified</p>
+            </div>
+            <div className="bg-purple-50/50 p-3 rounded-2xl text-center border border-purple-100">
+              <Shield className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+              <p className="text-[10px] font-bold text-purple-700">Trusted</p>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Analysis */}
+        <div className="bg-gradient-to-br from-purple-50 via-white to-teal-50 rounded-[2.5rem] p-8 border border-purple-100/50 space-y-6">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-slate-100">
+              <Sparkles className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-800">AI Compatibility Analysis</h4>
+              <p className="text-xs text-purple-600 font-medium">Based on safety, route, and preferences</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+             <div className="flex justify-between items-center text-xs font-black">
+               <span className="text-slate-500">Overall Match</span>
+               <span className="text-purple-600">98%</span>
+             </div>
+             <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+               <div className="h-full bg-gradient-to-r from-purple-500 to-teal-400" style={{ width: '98%' }} />
+             </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 pt-2">
+            <div className="bg-white/80 backdrop-blur p-3 rounded-2xl text-center border border-white shadow-sm">
+              <Shield className="w-4 h-4 text-green-500 mx-auto mb-1" />
+              <p className="text-[10px] text-slate-400 font-bold mb-0.5">Safety</p>
+              <p className="text-xs font-black text-slate-700">High</p>
+            </div>
+            <div className="bg-white/80 backdrop-blur p-3 rounded-2xl text-center border border-white shadow-sm">
+              <MapPin className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+              <p className="text-[10px] text-slate-400 font-bold mb-0.5">Route</p>
+              <p className="text-xs font-black text-slate-700">Direct</p>
+            </div>
+            <div className="bg-white/80 backdrop-blur p-3 rounded-2xl text-center border border-white shadow-sm">
+              <Star className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+              <p className="text-[10px] text-slate-400 font-bold mb-0.5">Rating</p>
+              <p className="text-xs font-black text-slate-700">Excellent</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Route Info */}
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 space-y-6">
+          <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Route Information</h4>
+          <div className="aspect-[2/1] bg-teal-50/50 rounded-[2rem] border border-teal-100 relative overflow-hidden p-6 flex items-start justify-start">
+             <span className="bg-green-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg shadow-green-200">
+               <Shield className="w-3.5 h-3.5" /> SAFE ROUTE
+             </span>
+          </div>
+          <div className="space-y-5">
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center flex-shrink-0 border border-purple-100">
+                <MapPin className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <h4 className="text-lg font-black tracking-tight">AI Compatibility Analysis</h4>
-                <p className="text-[10px] text-purple-300 font-bold uppercase tracking-[0.2em] mt-0.5">Community Match Strength</p>
+                <p className="text-[10px] text-slate-400 font-black uppercase">Pickup Location</p>
+                <p className="font-bold text-slate-700">Colaba</p>
               </div>
             </div>
-            <div className="space-y-4 pt-2">
-               <div className="flex justify-between items-end">
-                 <p className="text-3xl font-black tracking-tighter">98%<span className="text-sm text-purple-200 font-medium tracking-normal ml-2">Perfect Match</span></p>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">High Safety Score</span>
-               </div>
-               <div className="w-full h-4 bg-white/10 rounded-full overflow-hidden p-1 border border-white/5">
-                 <div className="h-full bg-gradient-to-r from-purple-500 via-indigo-400 to-white rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)]" style={{ width: '98%' }} />
-               </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center flex-shrink-0 border border-teal-100">
+                <MapPin className="w-5 h-5 text-teal-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase">Drop-off Location</p>
+                <p className="font-bold text-slate-700">Airport Terminal 2</p>
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
-               <MatchPoint label="Safety" val="Secure" />
-               <MatchPoint label="Route" val="Direct" />
-               <MatchPoint label="Cost" val="Optimized" />
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 border border-blue-100">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase">Departure Time</p>
+                <p className="font-bold text-slate-700">Today, 3:30 PM</p>
+              </div>
+            </div>
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0 border border-amber-100">
+                <Users className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase">Available Seats</p>
+                <p className="font-bold text-slate-700">2 seats available</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Route Details */}
-        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-purple-100/30 border border-purple-50 space-y-8">
-          <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Detailed Itinerary</h4>
-          <div className="relative space-y-10">
-            <RouteRow icon={<MapPin size={20} className="text-purple-600" />} label="Pickup Point" val={ride.from} sub="Verify at gate" color="bg-purple-50" />
-            <RouteRow icon={<MapPin size={20} className="text-teal-600" />} label="Destination" val={ride.to} sub="Business District" color="bg-teal-50" />
-            <div className="grid grid-cols-2 gap-8">
-              <RouteRow icon={<Clock size={20} className="text-blue-600" />} label="Departure" val={ride.time.split('•')[1] || ride.time} sub="Prompt start" color="bg-blue-50" />
-              <RouteRow icon={<Users size={20} className="text-amber-600" />} label="Occupancy" val={`${ride.passengers} Seats`} sub="Available" color="bg-amber-50" />
-            </div>
-          </div>
+        {/* Environmental Impact Accordion */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 flex items-center justify-between group cursor-pointer">
+           <div className="flex items-center gap-4">
+             <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+               <Leaf className="w-6 h-6" />
+             </div>
+             <div>
+               <h4 className="text-sm font-bold text-slate-800">Environmental Impact of This Ride</h4>
+               <p className="text-xs text-teal-600 font-semibold mt-0.5">See your sustainability contribution</p>
+             </div>
+           </div>
+           <ChevronDown className="w-5 h-5 text-slate-300 group-hover:text-slate-600 transition-colors" />
         </div>
 
-        {/* Contribution Breakdown */}
-        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-purple-100/30 border border-purple-50 space-y-6">
-           <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Contribution Summary</h4>
+        {/* Cost Breakdown */}
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 space-y-6">
+           <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Cost Breakdown</h4>
            <div className="space-y-4">
-             <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-               <span className="flex items-center gap-2">Fuel Contribution</span>
-               <span className="text-slate-900">₹{ride.price}</span>
+             <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+               <span>Base Fare</span>
+               <span className="font-bold text-slate-800">₹12</span>
              </div>
-             <div className="flex justify-between items-center text-sm font-bold text-slate-600">
-               <span className="flex items-center gap-2">Platform Maintenance</span>
-               <span className="text-emerald-600 font-black uppercase tracking-widest text-[9px] bg-emerald-50 px-2 py-1 rounded-md">Free</span>
+             <div className="flex justify-between items-center text-sm font-medium text-slate-500">
+               <span>Platform Fee</span>
+               <span className="font-bold text-green-600">₹0</span>
              </div>
-             <div className="pt-6 border-t border-purple-50 flex justify-between items-center">
-               <span className="text-xl font-black text-slate-900 tracking-tight">Total Payment</span>
-               <span className="text-4xl font-black text-purple-600 tracking-tighter">₹{ride.price}</span>
+             <div className="pt-4 border-t border-slate-50 flex justify-between items-center">
+               <span className="text-lg font-black text-slate-800">Total</span>
+               <span className="text-xl font-black text-purple-600">₹12</span>
              </div>
-             <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-4 mt-4">
-                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                   <Leaf size={20} className="text-emerald-500" />
-                </div>
-                <div>
-                   <p className="text-xs font-black text-emerald-800 uppercase tracking-widest leading-none mb-1">Eco-Impact</p>
-                   <p className="text-[10px] text-emerald-600 font-bold">This ride saves ~2.8kg of Carbon emissions</p>
-                </div>
+             <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
+                <IndianRupee className="w-4 h-4 text-green-600" />
+                <p className="text-xs font-bold text-green-700">You save ₹8 compared to solo ride</p>
              </div>
            </div>
         </div>
       </div>
 
-      {/* Floating Action Bar */}
-      <div className="fixed bottom-0 inset-x-0 p-6 bg-white/80 backdrop-blur-2xl border-t border-purple-100 z-[60] max-w-xl mx-auto rounded-t-[3.5rem] shadow-[0_-20px_60px_rgba(124,58,237,0.15)]">
+      {/* Action Footer */}
+      <div className="fixed bottom-0 inset-x-0 p-6 bg-white border-t border-slate-100 z-40 max-w-xl mx-auto">
         <button 
           onClick={onRequestJoin}
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-black py-5 rounded-[2.25rem] shadow-2xl shadow-purple-200 transition-all active:scale-95 text-xl tracking-tight flex items-center justify-center gap-3"
+          className="w-full bg-gradient-to-r from-purple-600 to-teal-600 text-white font-black py-5 rounded-[2rem] shadow-2xl transition-all active:scale-95 text-lg"
         >
-          Book Ride Spot <ArrowRight size={20} />
+          Request to Join Ride
         </button>
       </div>
     </div>
   );
 };
-
-const VerifyBadge: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
-  <div className="bg-slate-50 border border-slate-100 p-3 rounded-2xl text-center shadow-sm">
-    <div className="flex justify-center mb-1.5">{icon}</div>
-    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
-  </div>
-);
-
-const MatchPoint: React.FC<{ label: string; val: string }> = ({ label, val }) => (
-  <div className="text-center">
-    <p className="text-[9px] text-purple-300 font-bold uppercase tracking-[0.2em] mb-1">{label}</p>
-    <p className="text-xs font-black text-white">{val}</p>
-  </div>
-);
-
-const RouteRow: React.FC<{ icon: React.ReactNode; label: string; val: string; sub: string; color: string }> = ({ icon, label, val, sub, color }) => (
-  <div className="flex gap-5 items-start group">
-    <div className={`w-14 h-14 ${color} rounded-3xl flex items-center justify-center flex-shrink-0 border border-white shadow-xl group-hover:scale-110 transition-all duration-300`}>
-      {icon}
-    </div>
-    <div className="pt-1.5">
-      <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] leading-none mb-1.5">{label}</p>
-      <p className="text-lg font-black text-slate-900 tracking-tight leading-none mb-1">{val}</p>
-      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{sub}</p>
-    </div>
-  </div>
-);
-
-const IndianRupee: React.FC<{ size?: number; className?: string }> = ({ size = 24, className }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M6 3h12" /><path d="M6 8h12" /><path d="m6 13 8.5 8" /><path d="M6 13h3" /><path d="M9 13c6.667 0 6.667-10 0-10" />
-  </svg>
-);
