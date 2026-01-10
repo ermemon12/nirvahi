@@ -1,6 +1,7 @@
 
 export enum AppState {
   LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
   VERIFY_ID = 'VERIFY_ID',
   VERIFYING = 'VERIFYING',
   DASHBOARD = 'DASHBOARD',
@@ -36,4 +37,5 @@ export interface Ride {
   seats: number;
   price: number;
 }
+
 
